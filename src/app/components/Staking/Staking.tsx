@@ -1,9 +1,17 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Transaction, networks } from "bitcoinjs-lib";
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import { useLocalStorage } from "usehooks-ts";
 
+import {
+  PaginatedFinalityProviders,
+  getFinalityProviders,
+} from "@/app/api/getFinalityProviders";
 import {
   OVERFLOW_HEIGHT_WARNING_THRESHOLD,
   OVERFLOW_TVL_WARNING_THRESHOLD,
@@ -54,13 +62,13 @@ interface OverflowProperties {
 
 interface StakingProps {
   btcHeight: number | undefined;
-  finalityProviders: FinalityProviderInterface[] | undefined;
+  // finalityProviders: FinalityProviderInterface[] | undefined;
   isWalletConnected: boolean;
   isLoading: boolean;
   onConnect: () => void;
-  finalityProvidersFetchNext: () => void;
-  finalityProvidersHasNext: boolean;
-  finalityProvidersIsFetchingMore: boolean;
+  // finalityProvidersFetchNext: () => void;
+  // finalityProvidersHasNext: boolean;
+  // finalityProvidersIsFetchingMore: boolean;
   btcWallet: WalletProvider | undefined;
   btcWalletBalanceSat?: number;
   btcWalletNetwork: networks.Network | undefined;
@@ -68,16 +76,19 @@ interface StakingProps {
   publicKeyNoCoord: string;
   setDelegationsLocalStorage: Dispatch<SetStateAction<Delegation[]>>;
   availableUTXOs?: UTXO[] | undefined;
+  setFinalityProvidersCallback: (
+    kv: Record<string, string> | undefined,
+  ) => void;
 }
 
 export const Staking: React.FC<StakingProps> = ({
   btcHeight,
-  finalityProviders,
+  // finalityProviders,
   isWalletConnected,
   onConnect,
-  finalityProvidersFetchNext,
-  finalityProvidersHasNext,
-  finalityProvidersIsFetchingMore,
+  // finalityProvidersFetchNext,
+  // finalityProvidersHasNext,
+  // finalityProvidersIsFetchingMore,
   isLoading,
   btcWallet,
   btcWalletNetwork,
@@ -86,6 +97,7 @@ export const Staking: React.FC<StakingProps> = ({
   setDelegationsLocalStorage,
   btcWalletBalanceSat,
   availableUTXOs,
+  setFinalityProvidersCallback,
 }) => {
   // Staking form state
   const [stakingAmountSat, setStakingAmountSat] = useState(0);
@@ -112,6 +124,67 @@ export const Staking: React.FC<StakingProps> = ({
     overTheCapRange: false,
     approchingCapRange: false,
   });
+
+  const {
+    data: fps,
+    fetchNextPage: finalityProvidersFetchNext,
+    hasNextPage: finalityProvidersHasNext,
+    isFetchingNextPage: finalityProvidersIsFetchingMore,
+    error: finalityProvidersError,
+    isError: hasFinalityProvidersError,
+    refetch: refetchFinalityProvidersData,
+    isRefetchError: isRefetchFinalityProvidersError,
+  } = useInfiniteQuery({
+    queryKey: ["finality providers"],
+    queryFn: ({ pageParam = "" }) => getFinalityProviders(pageParam),
+    getNextPageParam: (lastPage) =>
+      lastPage?.pagination?.next_key !== ""
+        ? lastPage?.pagination?.next_key
+        : null,
+    initialPageParam: "",
+    refetchInterval: 60000, // 1 minute
+    select: (data) => {
+      const flattenedData = data.pages.reduce<PaginatedFinalityProviders>(
+        (acc, page) => {
+          acc.finalityProviders.push(...page.finalityProviders);
+          acc.pagination = page.pagination;
+          return acc;
+        },
+        { finalityProviders: [], pagination: { next_key: "" } },
+      );
+      return flattenedData;
+    },
+    retry: (failureCount, error) => {
+      return !isErrorOpen && failureCount <= 3;
+    },
+  });
+
+  const finalityProviders = fps?.finalityProviders;
+
+  // Fetch the remaining finality providers async
+  useEffect(() => {
+    if (
+      finalityProvidersHasNext &&
+      finalityProvidersFetchNext &&
+      !finalityProvidersIsFetchingMore
+    ) {
+      finalityProvidersFetchNext();
+    }
+  }, [
+    finalityProvidersHasNext,
+    finalityProvidersFetchNext,
+    finalityProvidersIsFetchingMore,
+  ]);
+
+  // Finality providers key-value map { pk: moniker }
+  useEffect(() => {
+    const finalityProvidersKV: Record<string, string> | undefined =
+      finalityProviders?.reduce(
+        (acc, fp) => ({ ...acc, [fp?.btcPk]: fp?.description?.moniker }),
+        {},
+      );
+    setFinalityProvidersCallback(finalityProvidersKV);
+  }, [finalityProviders, setFinalityProvidersCallback]);
 
   // Mempool fee rates, comes from the network
   // Fetch fee rates, sat/vB
