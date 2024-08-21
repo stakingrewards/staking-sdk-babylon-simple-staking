@@ -17,7 +17,7 @@ const mainnetConfig: NetworkConfig = {
   coinSymbol: "BTC",
   networkName: "BTC",
   mempoolApiUrl: `https://babylon.mempool.space`,
-  babylonApiUrl: `https://staking-api.babylonchain.io`,
+  babylonApiUrl: `https://staking-api.babylonlabs.io`,
   network: Network.MAINNET,
 };
 
