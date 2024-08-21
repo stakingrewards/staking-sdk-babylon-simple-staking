@@ -10,6 +10,7 @@ import { getStakingTerm } from "../getStakingTerm";
 
 import { txFeeSafetyCheck } from "./fee";
 import { emitEventFunc, noopFunc } from './events'
+import { getTipHeight } from '../../utils/mempool_api'
 
 // Returns:
 // - unsignedStakingPsbt: the unsigned staking transaction
@@ -79,7 +80,7 @@ export const createStakingTx = async (
       // For example, if a Bitcoin height of X is provided,
       // the transaction will be included starting from height X+1.
       // https://learnmeabitcoin.com/technical/transaction/locktime/
-      globalParamsVersion.activationHeight - 1,
+        (await getTipHeight()) - 1,
     );
     unsignedStakingPsbt = psbt;
     stakingFeeSat = fee;
