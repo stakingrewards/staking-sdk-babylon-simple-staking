@@ -18,9 +18,6 @@ const getStakerSignature = (unbondingTx: Transaction): string => {
   }
 };
 
-// type voidFunction = () => void;
-// function noopFunc() {}
-
 // Sign an unbonding transaction
 // Returns:
 // - unbondingTx: the signed unbonding transaction
