@@ -1,12 +1,15 @@
 import axios from "axios";
+import { getNetworkConfig } from "../../config/network.config";
 
 interface HealthCheckResponse {
   data: string;
 }
 
 export const fetchHealthCheck = async (): Promise<HealthCheckResponse> => {
+  const { babylonApiUrl } = getNetworkConfig();
+
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_STAKING_SDK_BABYLON_API_URL}/healthcheck`,
+    `${babylonApiUrl}/healthcheck`,
   );
   return response.data;
 };

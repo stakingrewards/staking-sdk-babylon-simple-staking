@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getNetworkConfig } from "../../config/network.config";
 
 export const apiWrapper = async (
   method: "GET" | "POST",
@@ -20,10 +21,12 @@ export const apiWrapper = async (
       throw new Error("Invalid method");
   }
 
+  const { babylonApiUrl } = getNetworkConfig();
+
   try {
     // destructure params in case of post request
     response = await handler(
-      `${process.env.NEXT_PUBLIC_STAKING_SDK_BABYLON_API_URL}${url}`,
+      `${babylonApiUrl}${url}`,
       method === "POST"
         ? { ...params }
         : {
