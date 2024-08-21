@@ -7,6 +7,7 @@ import { SignPsbtTransaction } from "../../app/common/utils/psbt";
 import { Delegation as DelegationInterface } from "../../app/types/delegations";
 import { apiDataToStakingScripts } from "../../utils/apiDataToStakingScripts";
 import { getCurrentGlobalParamsVersion } from "../../utils/globalParams";
+import { noopFunc, emitEventFunc } from './events'
 
 // Get the staker signature from the unbonding transaction
 const getStakerSignature = (unbondingTx: Transaction): string => {
@@ -27,6 +28,8 @@ export const signUnbondingTx = async (
   publicKeyNoCoord: string,
   btcWalletNetwork: networks.Network,
   signPsbtTx: SignPsbtTransaction,
+  emitWaitForSignatureEvent: emitEventFunc = noopFunc,
+  emitBroadcastEvent: emitEventFunc = noopFunc,
 ): Promise<{ unbondingTxHex: string; delegation: DelegationInterface }> => {
   // Check if the data is available
   if (!delegationsAPI) {
@@ -80,6 +83,8 @@ export const signUnbondingTx = async (
     delegation.stakingTx.outputIndex,
   );
 
+  emitWaitForSignatureEvent()
+
   // Sign the unbonding transaction
   let unbondingTx: Transaction;
   try {
@@ -93,6 +98,8 @@ export const signUnbondingTx = async (
 
   // Get the unbonding transaction hex
   const unbondingTxHex = unbondingTx.toHex();
+
+  emitBroadcastEvent()
 
   // POST unbonding to the API
   await postUnbonding(
