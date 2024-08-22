@@ -134,6 +134,7 @@ export async function getTipHeight(): Promise<number> {
 export async function getFundingUTXOs(
   address: string,
   amount?: number,
+  skipConfirmedUTXOs = false
 ): Promise<UTXO[]> {
   // Get all UTXOs for the given address
 
@@ -151,7 +152,9 @@ export async function getFundingUTXOs(
   // of inputs that will satisfy the `amount` requirement,
   // as less inputs lead to a smaller transaction and therefore smaller fees.
   const confirmedUTXOs = utxos
-    .filter((utxo: any) => utxo.status.confirmed)
+    .filter((utxo: any) => {
+      return skipConfirmedUTXOs ? true : utxo.status.confirmed;
+    })
     .sort((a: any, b: any) => b.value - a.value);
 
   // If amount is provided, reduce the list of UTXOs into a list that
