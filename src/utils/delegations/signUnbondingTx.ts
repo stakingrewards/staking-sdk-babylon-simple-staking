@@ -64,6 +64,8 @@ export const signUnbondingTx = async (
     throw new Error("Current version not found");
   }
 
+  console.log('unbound FEE:', globalParamsWhenStaking.unbondingFeeSat)
+
   // Recreate the staking scripts
   const scripts = await apiDataToStakingScripts(
     delegation.finalityProviderPkHex,
