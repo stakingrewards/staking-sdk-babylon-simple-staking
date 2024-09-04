@@ -7,7 +7,6 @@ import { ThemeProvider } from "next-themes";
 import React from "react";
 
 import { ErrorProvider } from "./context/Error/ErrorContext";
-import { TermsProvider } from "./context/Terms/TermsContext";
 import { GlobalParamsProvider } from "./context/api/GlobalParamsProvider";
 import { StakingStatsProvider } from "./context/api/StakingStatsProvider";
 import { BtcHeightProvider } from "./context/mempool/BtcHeightProvider";
@@ -18,19 +17,17 @@ function Providers({ children }: React.PropsWithChildren) {
   return (
     <ThemeProvider defaultTheme="dark" attribute="data-theme">
       <QueryClientProvider client={client}>
-        <TermsProvider>
-          <ErrorProvider>
-            <GlobalParamsProvider>
-              <BtcHeightProvider>
-                <StakingStatsProvider>
-                  <ReactQueryStreamedHydration>
-                    {children}
-                  </ReactQueryStreamedHydration>
-                </StakingStatsProvider>
-              </BtcHeightProvider>
-            </GlobalParamsProvider>
-          </ErrorProvider>
-        </TermsProvider>
+        <ErrorProvider>
+          <GlobalParamsProvider>
+            <BtcHeightProvider>
+              <StakingStatsProvider>
+                <ReactQueryStreamedHydration>
+                  {children}
+                </ReactQueryStreamedHydration>
+              </StakingStatsProvider>
+            </BtcHeightProvider>
+          </GlobalParamsProvider>
+        </ErrorProvider>
         <ReactQueryDevtools
           buttonPosition="bottom-left"
           initialIsOpen={false}

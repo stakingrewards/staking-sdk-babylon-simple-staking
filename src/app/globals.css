@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("styles/terms.css");
-
 :root {
   --primary: #ff7c2a;
   --secondary: "#0DB7BF";

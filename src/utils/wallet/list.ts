@@ -51,7 +51,7 @@ export const walletList: IntegratedWallet[] = [
     wallet: TomoWallet,
     provider: tomoProvider,
     linkToDocs: "https://tomo.inc/",
-    supportedNetworks: [Network.MAINNET, Network.SIGNET],
+    supportedNetworks: [Network.SIGNET],
   },
   {
     name: "OneKey",
