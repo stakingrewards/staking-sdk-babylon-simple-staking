@@ -8,7 +8,6 @@ import { UTXO, WalletProvider } from "../../utils/wallet/wallet_provider";
 
 import { getStakingTerm } from "../getStakingTerm";
 
-import { txFeeSafetyCheck } from "./fee";
 import { emitEventFunc, noopFunc } from './events'
 import { getTipHeight } from '../../utils/mempool_api'
 
@@ -112,7 +111,7 @@ export const signStakingTx = async (
   emitBroadcastEvent: emitEventFunc = noopFunc,
 ): Promise<{ stakingTxHex: string; stakingTerm: number }> => {
   // Create the staking transaction
-  let { unsignedStakingPsbt, stakingTerm, stakingFeeSat } = await createStakingTx(
+  let { unsignedStakingPsbt, stakingTerm} = await createStakingTx(
     globalParamsVersion,
     stakingAmountSat,
     stakingTimeBlocks,
@@ -138,8 +137,6 @@ export const signStakingTx = async (
 
   // Get the staking transaction hex
   const stakingTxHex = stakingTx.toHex();
-
-  txFeeSafetyCheck(stakingTx, feeRate, stakingFeeSat);
 
   emitBroadcastEvent()
 

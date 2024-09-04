@@ -11,7 +11,6 @@ import { Delegation as DelegationInterface } from "../../app/types/delegations";
 import { apiDataToStakingScripts } from "../../utils/apiDataToStakingScripts";
 import { getCurrentGlobalParamsVersion } from "../../utils/globalParams";
 
-import { txFeeSafetyCheck } from "./fee";
 import { emitEventFunc, noopFunc } from './events'
 
 
@@ -133,7 +132,7 @@ export const signWithdrawalTx = async (
   withdrawalTxHex: string;
 }> => {
 
-  const { psbt, fee } = await createWithdrawalTx(
+  const { psbt} = await createWithdrawalTx(
       id,
       delegationsAPI,
       publicKeyNoCoord,
@@ -154,12 +153,6 @@ export const signWithdrawalTx = async (
 
   // Get the withdrawal transaction hex
   const withdrawalTxHex = withdrawalTx.toHex();
-  // Perform a safety check on the estimated transaction fee
-  txFeeSafetyCheck(
-    withdrawalTx,
-    feeRate,
-    fee,
-  );
 
   emitBroadcastEvent();
 
