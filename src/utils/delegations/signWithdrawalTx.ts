@@ -15,6 +15,7 @@ import { getFeeRateFromMempool } from "../getFeeRateFromMempool";
 import { Fees } from "../wallet/wallet_provider";
 
 import { txFeeSafetyCheck } from "./fee";
+import { emitEventFunc, noopFunc } from "./events";
 
 // Sign a withdrawal transaction
 // Returns:
@@ -29,6 +30,8 @@ export const signWithdrawalTx = async (
   address: string,
   getNetworkFees: () => Promise<Fees>,
   pushTx: (txHex: string) => Promise<string>,
+  emitWaitForSignatureEvent: emitEventFunc = noopFunc,
+  emitBroadcastEvent: emitEventFunc = noopFunc,
 ): Promise<{
   withdrawalTxHex: string;
   delegation: DelegationInterface;
@@ -108,6 +111,8 @@ export const signWithdrawalTx = async (
     );
   }
 
+  emitWaitForSignatureEvent();
+
   // Sign the withdrawal transaction
   let withdrawalTx: Transaction;
   try {
@@ -119,12 +124,15 @@ export const signWithdrawalTx = async (
 
   // Get the withdrawal transaction hex
   const withdrawalTxHex = withdrawalTx.toHex();
+
   // Perform a safety check on the estimated transaction fee
   txFeeSafetyCheck(
     withdrawalTx,
     feeRate.defaultFeeRate,
     withdrawPsbtTxResult.fee,
   );
+
+  emitBroadcastEvent();
 
   // Broadcast withdrawal transaction
   await pushTx(withdrawalTxHex);

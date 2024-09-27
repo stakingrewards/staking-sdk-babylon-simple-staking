@@ -8,7 +8,7 @@ import { isTaproot } from "@/utils/wallet";
 import { UTXO, WalletProvider } from "@/utils/wallet/wallet_provider";
 
 import { getStakingTerm } from "../getStakingTerm";
-
+import { emitEventFunc, noopFunc } from './events';
 import { txFeeSafetyCheck } from "./fee";
 
 // Returns:
@@ -105,6 +105,8 @@ export const signStakingTx = async (
   publicKeyNoCoord: string,
   feeRate: number,
   inputUTXOs: UTXO[],
+  emitWaitForSignatureEvent: emitEventFunc = noopFunc,
+  emitBroadcastEvent: emitEventFunc = noopFunc,
 ): Promise<{ stakingTxHex: string; stakingTerm: number }> => {
   // Create the staking transaction
   let { unsignedStakingPsbt, stakingTerm, stakingFeeSat } = createStakingTx(
@@ -119,6 +121,8 @@ export const signStakingTx = async (
     inputUTXOs,
   );
 
+  emitWaitForSignatureEvent()
+
   // Sign the staking transaction
   let stakingTx: Transaction;
   try {
@@ -131,6 +135,8 @@ export const signStakingTx = async (
 
   // Get the staking transaction hex
   const stakingTxHex = stakingTx.toHex();
+
+  emitBroadcastEvent()
 
   txFeeSafetyCheck(stakingTx, feeRate, stakingFeeSat);
 
