@@ -1,3 +1,4 @@
+import { stakingTransaction } from "@babylonlabs-io/btc-staking-ts";
 import { Transaction, networks } from "bitcoinjs-lib";
 
 import { signPsbtTransaction } from "../../app/common/utils/psbt";
@@ -8,8 +9,9 @@ import { UTXO, WalletProvider } from "../../utils/wallet/wallet_provider";
 
 import { getStakingTerm } from "../getStakingTerm";
 
-import { emitEventFunc, noopFunc } from './events'
-import { getTipHeight } from '../../utils/mempool_api'
+import { txFeeSafetyCheck } from "./fee";
+import { emitEventFunc, noopFunc } from './events';
+import { getTipHeight } from "../mempool_api";
 
 // Returns:
 // - unsignedStakingPsbt: the unsigned staking transaction
@@ -61,8 +63,6 @@ export const createStakingTx = async (
     throw new Error(error?.message || "Cannot build staking scripts");
   }
 
-  const  { stakingTransaction } = await import ("btc-staking-ts");
-
   // Create the staking transaction
   let unsignedStakingPsbt;
   let stakingFeeSat;
@@ -79,7 +79,7 @@ export const createStakingTx = async (
       // For example, if a Bitcoin height of X is provided,
       // the transaction will be included starting from height X+1.
       // https://learnmeabitcoin.com/technical/transaction/locktime/
-        (await getTipHeight()) - 1,
+      (await getTipHeight()) - 1,
     );
     unsignedStakingPsbt = psbt;
     stakingFeeSat = fee;
@@ -111,7 +111,7 @@ export const signStakingTx = async (
   emitBroadcastEvent: emitEventFunc = noopFunc,
 ): Promise<{ stakingTxHex: string; stakingTerm: number }> => {
   // Create the staking transaction
-  let { unsignedStakingPsbt, stakingTerm} = await createStakingTx(
+  let { unsignedStakingPsbt, stakingTerm, stakingFeeSat } = await createStakingTx(
     globalParamsVersion,
     stakingAmountSat,
     stakingTimeBlocks,
@@ -139,6 +139,8 @@ export const signStakingTx = async (
   const stakingTxHex = stakingTx.toHex();
 
   emitBroadcastEvent()
+
+  txFeeSafetyCheck(stakingTx, feeRate, stakingFeeSat);
 
   // Broadcast the staking transaction
   await btcWallet.pushTx(stakingTxHex);

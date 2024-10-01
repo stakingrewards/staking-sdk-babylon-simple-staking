@@ -1,3 +1,4 @@
+import { unbondingTransaction } from "@babylonlabs-io/btc-staking-ts";
 import { Transaction, networks } from "bitcoinjs-lib";
 
 import { getGlobalParams } from "../../app/api/getGlobalParams";
@@ -7,7 +8,7 @@ import { SignPsbtTransaction } from "../../app/common/utils/psbt";
 import { Delegation as DelegationInterface } from "../../app/types/delegations";
 import { apiDataToStakingScripts } from "../../utils/apiDataToStakingScripts";
 import { getCurrentGlobalParamsVersion } from "../../utils/globalParams";
-import { noopFunc, emitEventFunc } from './events'
+import { emitEventFunc, noopFunc } from "./events";
 
 // Get the staker signature from the unbonding transaction
 const getStakerSignature = (unbondingTx: Transaction): string => {
@@ -72,8 +73,6 @@ export const signUnbondingTx = async (
     publicKeyNoCoord,
   );
 
-
-  const { unbondingTransaction } = await import ("btc-staking-ts");
   // Create the unbonding transaction
   const { psbt: unsignedUnbondingTx } = unbondingTransaction(
     scripts,

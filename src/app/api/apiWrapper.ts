@@ -1,9 +1,9 @@
-import axios from "axios";
 import { getNetworkConfig } from "../../config/network.config";
+import axios from "axios";
 
 export const apiWrapper = async (
   method: "GET" | "POST",
-  url: string,
+  path: string,
   generalErrorMessage: string,
   params?: any,
   timeout?: number,
@@ -20,13 +20,11 @@ export const apiWrapper = async (
     default:
       throw new Error("Invalid method");
   }
-
   const { babylonApiUrl } = getNetworkConfig();
-
   try {
     // destructure params in case of post request
     response = await handler(
-      `${babylonApiUrl}${url}`,
+      `${babylonApiUrl}${path}`,
       method === "POST"
         ? { ...params }
         : {

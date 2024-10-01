@@ -94,7 +94,7 @@ const getUTXOIdentifier = (utxo: { txid: string; vout: number }) =>
   Filter out UTXOs that have value less than 10k sats
   Reasons as below:
   1. Most of the original UTXOs are less than 10k sats
-  2. 10k sats or less has less economic value which will add more cost to the 
+  2. 10k sats or less has less economic value which will add more cost to the
   transaction due to fees
 */
 const filterLowValueUtxos = (utxos: UTXO[]): UTXO[] => {

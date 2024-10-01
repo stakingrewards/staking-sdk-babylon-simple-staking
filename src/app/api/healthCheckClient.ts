@@ -1,5 +1,5 @@
-import axios from "axios";
 import { getNetworkConfig } from "../../config/network.config";
+import axios from "axios";
 
 interface HealthCheckResponse {
   data: string;

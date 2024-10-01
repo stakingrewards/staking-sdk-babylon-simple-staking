@@ -16,7 +16,7 @@ const mainnetConfig: NetworkConfig = {
   coinName: "BTC",
   coinSymbol: "BTC",
   networkName: "BTC",
-  mempoolApiUrl: `https://babylon.mempool.space`,
+  mempoolApiUrl: `https://mempool.space`,
   babylonApiUrl: `https://staking-api.babylonlabs.io`,
   network: Network.MAINNET,
 };
@@ -25,7 +25,7 @@ const signetConfig: NetworkConfig = {
   coinName: "Signet BTC",
   coinSymbol: "sBTC",
   networkName: "BTC signet",
-  mempoolApiUrl: `https://babylon.mempool.space/signet`,
+  mempoolApiUrl: `https://mempool.space/signet`,
   babylonApiUrl: `https://staking-api.staging.babylonchain.io`,
   network: Network.SIGNET,
 };
@@ -34,7 +34,7 @@ const testnetConfig: NetworkConfig = {
   coinName: "Testnet BTC",
   coinSymbol: "tBTC",
   networkName: "BTC testnet",
-  mempoolApiUrl: `https://babylon.mempool.space/testnet`,
+  mempoolApiUrl: `https://mempool.space/testnet`,
   babylonApiUrl: `https://staking-api.staging.babylonchain.io`,
   network: Network.TESTNET,
 };
