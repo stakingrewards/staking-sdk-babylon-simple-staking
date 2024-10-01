@@ -1,13 +1,14 @@
 import { Network } from "@/utils/wallet/wallet_provider";
 
 export const network =
-  (process.env.NEXT_PUBLIC_NETWORK as Network) || Network.SIGNET;
+  (process.env.NEXT_PUBLIC_STAKING_SDK_BABYLON_NETWORK as Network) || Network.MAINNET;
 
 interface NetworkConfig {
   coinName: string;
   coinSymbol: string;
   networkName: string;
   mempoolApiUrl: string;
+  babylonApiUrl: string;
   network: Network;
 }
 
@@ -15,7 +16,8 @@ const mainnetConfig: NetworkConfig = {
   coinName: "BTC",
   coinSymbol: "BTC",
   networkName: "BTC",
-  mempoolApiUrl: `${process.env.NEXT_PUBLIC_MEMPOOL_API}`,
+  mempoolApiUrl: `https://mempool.space`,
+  babylonApiUrl: `https://staking-api.babylonlabs.io`,
   network: Network.MAINNET,
 };
 
@@ -23,7 +25,8 @@ const signetConfig: NetworkConfig = {
   coinName: "Signet BTC",
   coinSymbol: "sBTC",
   networkName: "BTC signet",
-  mempoolApiUrl: `${process.env.NEXT_PUBLIC_MEMPOOL_API}/signet`,
+  mempoolApiUrl: `https://mempool.space/signet`,
+  babylonApiUrl: `https://staking-api.staging.babylonchain.io`,
   network: Network.SIGNET,
 };
 
@@ -31,7 +34,8 @@ const testnetConfig: NetworkConfig = {
   coinName: "Testnet BTC",
   coinSymbol: "tBTC",
   networkName: "BTC testnet",
-  mempoolApiUrl: `${process.env.NEXT_PUBLIC_MEMPOOL_API}/testnet`,
+  mempoolApiUrl: `https://mempool.space/testnet`,
+  babylonApiUrl: `https://staking-api.staging.babylonchain.io`,
   network: Network.TESTNET,
 };
 

@@ -94,7 +94,7 @@ export const createStakingTx = (
 // Returns:
 // - stakingTxHex: the signed staking transaction
 // - stakingTerm: the staking term
-export const signStakingTx = async (
+export const  signStakingTx = async (
   btcWallet: WalletProvider,
   globalParamsVersion: GlobalParamsVersion,
   stakingAmountSat: number,
