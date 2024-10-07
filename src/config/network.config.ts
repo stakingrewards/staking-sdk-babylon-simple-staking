@@ -9,6 +9,7 @@ interface NetworkConfig {
   networkName: string;
   mempoolApiUrl: string;
   babylonApiUrl: string;
+  pointsApiUrl: string;
   network: Network;
 }
 
@@ -18,6 +19,7 @@ const mainnetConfig: NetworkConfig = {
   networkName: "BTC",
   mempoolApiUrl: `https://mempool.space`,
   babylonApiUrl: `https://staking-api.babylonlabs.io`,
+  pointsApiUrl: `https://points.babylonlabs.io`,
   network: Network.MAINNET,
 };
 
@@ -27,6 +29,7 @@ const signetConfig: NetworkConfig = {
   networkName: "BTC signet",
   mempoolApiUrl: `https://mempool.space/signet`,
   babylonApiUrl: `https://staking-api.staging.babylonchain.io`,
+  pointsApiUrl: `https://points.staging.babylonchain.io`,
   network: Network.SIGNET,
 };
 
@@ -36,6 +39,7 @@ const testnetConfig: NetworkConfig = {
   networkName: "BTC testnet",
   mempoolApiUrl: `https://mempool.space/testnet`,
   babylonApiUrl: `https://staking-api.staging.babylonchain.io`,
+  pointsApiUrl: `https://points.staging.babylonchain.io`,
   network: Network.TESTNET,
 };
 

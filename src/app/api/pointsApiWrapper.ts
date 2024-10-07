@@ -1,3 +1,4 @@
+import { getNetworkConfig } from "../../config/network.config";
 import axios from "axios";
 
 export const pointsApiWrapper = async (
@@ -21,9 +22,11 @@ export const pointsApiWrapper = async (
   }
 
   try {
+    const { pointsApiUrl } = getNetworkConfig();
+
     // destructure params in case of post request
     response = await handler(
-      `${process.env.NEXT_PUBLIC_POINTS_API_URL}${path}`,
+      `${pointsApiUrl}${path}`,
       method === "POST"
         ? { ...params }
         : {
