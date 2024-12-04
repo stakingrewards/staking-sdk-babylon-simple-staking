@@ -18,7 +18,7 @@ import {
 
 // Internal network names
 const INTERNAL_NETWORK_NAMES = {
-  [Network.MAINNET]: "livenet",
+  [Network.MAINNET]: "mainnet",
   [Network.TESTNET]: "testnet",
   [Network.SIGNET]: "signet",
 };
@@ -169,6 +169,7 @@ export class CactusLinkWallet extends WalletProvider {
   };
 
   getInscriptions(): Promise<InscriptionIdentifier[]> {
-    throw new Error("Method not implemented.");
+    // Temporary solution to ignore inscriptions filtering for Cactus Link Wallet
+    return Promise.resolve([]);
   }
 }
