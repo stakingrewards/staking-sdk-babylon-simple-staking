@@ -3,9 +3,11 @@
 import { initBTCCurve } from "@babylonlabs-io/btc-staking-ts";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { networks } from "bitcoinjs-lib";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
+import { useTermsAcceptance } from "@/app/hooks/useAcceptTerms";
+import { shouldDisableUnbonding } from "@/config";
 import { network } from "@/config/network.config";
 import { getCurrentGlobalParamsVersion } from "@/utils/globalParams";
 import { calculateDelegationsDiff } from "@/utils/local_storage/calculateDelegationsDiff";
@@ -21,18 +23,22 @@ import { Network, WalletProvider } from "@/utils/wallet/wallet_provider";
 
 import { getDelegations, PaginatedDelegations } from "./api/getDelegations";
 import { getGlobalParams } from "./api/getGlobalParams";
-import { UTXO_KEY } from "./common/constants";
+import { FILTER_ORDINALS_MODAL_KEY, UTXO_KEY } from "./common/constants";
 import { signPsbtTransaction } from "./common/utils/psbt";
 import { Delegations } from "./components/Delegations/Delegations";
 import { FAQ } from "./components/FAQ/FAQ";
 import { Footer } from "./components/Footer/Footer";
 import { Header } from "./components/Header/Header";
+import { LoadingView } from "./components/Loading/Loading";
 import { ConnectModal } from "./components/Modals/ConnectModal";
 import { ErrorModal } from "./components/Modals/ErrorModal";
+import { FilterOrdinalsModal } from "./components/Modals/FilterOrdinalsModal";
+import { UnbondingDisabledModal } from "./components/Modals/UnbondingDisabledModal";
 import { NetworkBadge } from "./components/NetworkBadge/NetworkBadge";
 import { Staking } from "./components/Staking/Staking";
 import { Stats } from "./components/Stats/Stats";
 import { Summary } from "./components/Summary/Summary";
+import { UnbondingDisabledBanner } from "./components/UnbondingDisabledBanner/UnbondingDisabledBanner";
 import { useError } from "./context/Error/ErrorContext";
 import { Delegation, DelegationState } from "./types/delegations";
 import { ErrorState } from "./types/errors";
@@ -118,6 +124,15 @@ const Home: React.FC<HomeProps> = () => {
     },
   });
 
+  // Whether or not to filter out ordinals from the UTXOs
+  const [shouldFilterOrdinals, setShouldFilterOrdinals] = useState(true);
+
+  const [filterOrdinalsModalOpen, setFilterOrdinalsModalOpen] = useState(false);
+
+  const handleShouldFilterOrdinals = (value: boolean) => {
+    setShouldFilterOrdinals(value);
+  };
+
   // Fetch all UTXOs
   const {
     data: availableUTXOs,
@@ -125,11 +140,15 @@ const Home: React.FC<HomeProps> = () => {
     isError: hasAvailableUTXOsError,
     refetch: refetchAvailableUTXOs,
   } = useQuery({
-    queryKey: [UTXO_KEY, address],
+    queryKey: [UTXO_KEY, address, shouldFilterOrdinals],
     queryFn: async () => {
       if (btcWallet?.getUtxos && address) {
         // all confirmed UTXOs from the wallet
         const mempoolUTXOs = await btcWallet.getUtxos(address);
+
+        // return the UTXOs if we don't need to filter out the ordinals
+        if (!shouldFilterOrdinals) return mempoolUTXOs;
+
         // filter out the ordinals
         const filteredUTXOs = await filterOrdinals(
           mempoolUTXOs,
@@ -198,13 +217,16 @@ const Home: React.FC<HomeProps> = () => {
     setConnectModalOpen(true);
   };
 
-  const handleDisconnectBTC = () => {
-    setBTCWallet(undefined);
+  const [hasSeenFilterOrdinalsModal, setHasSeenFilterOrdinalsModal] =
+    useLocalStorage<Record<string, boolean>>(FILTER_ORDINALS_MODAL_KEY, {});
 
+  const { logTermsAcceptance } = useTermsAcceptance();
+  const handleDisconnectBTC = useCallback(() => {
+    setBTCWallet(undefined);
     setBTCWalletNetwork(undefined);
     setPublicKeyNoCoord("");
     setAddress("");
-  };
+  }, []);
 
   const handleConnectBTC = useCallback(
     async (walletProvider: WalletProvider) => {
@@ -230,6 +252,17 @@ const Home: React.FC<HomeProps> = () => {
         setBTCWalletNetwork(toNetwork(await walletProvider.getNetwork()));
         setAddress(address);
         setPublicKeyNoCoord(publicKeyNoCoord.toString("hex"));
+
+        // Show the modal only if it hasn't been seen before for the address
+        if (!hasSeenFilterOrdinalsModal[address]) {
+          setFilterOrdinalsModalOpen(true);
+        }
+
+        // Log the terms acceptance
+        logTermsAcceptance({
+          address,
+          public_key: publicKeyNoCoord.toString("hex"),
+        });
       } catch (error: Error | any) {
         if (
           error instanceof WalletError &&
@@ -258,7 +291,7 @@ const Home: React.FC<HomeProps> = () => {
         });
       }
     },
-    [showError],
+    [showError, hasSeenFilterOrdinalsModal, logTermsAcceptance],
   );
 
   // Subscribe to account changes
@@ -314,16 +347,27 @@ const Home: React.FC<HomeProps> = () => {
     0,
   );
 
+  const handleCloseFilterOrdinalsModal = () => {
+    setFilterOrdinalsModalOpen(false);
+    setHasSeenFilterOrdinalsModal((prev) => ({
+      ...prev,
+      [address]: true,
+    }));
+  };
+
   return (
     <main
       className={`relative h-full min-h-svh w-full ${network === Network.MAINNET ? "main-app-mainnet" : "main-app-testnet"}`}
     >
       <NetworkBadge isWalletConnected={!!btcWallet} />
+      {shouldDisableUnbonding() && <UnbondingDisabledBanner />}
       <Header
         onConnect={handleConnectModal}
         onDisconnect={handleDisconnectBTC}
         address={address}
         btcWalletBalanceSat={btcWalletBalanceSat}
+        shouldFilterOrdinals={shouldFilterOrdinals}
+        setShouldFilterOrdinals={handleShouldFilterOrdinals}
       />
       <div className="container mx-auto flex justify-center p-6">
         <div className="container flex flex-col gap-6">
@@ -335,19 +379,21 @@ const Home: React.FC<HomeProps> = () => {
               publicKeyNoCoord={publicKeyNoCoord}
             />
           )}
-          <Staking
-            btcHeight={paramWithContext?.currentHeight}
-            isWalletConnected={!!btcWallet}
-            onConnect={handleConnectModal}
-            isLoading={isLoadingCurrentParams}
-            btcWallet={btcWallet}
-            btcWalletBalanceSat={btcWalletBalanceSat}
-            btcWalletNetwork={btcWalletNetwork}
-            address={address}
-            publicKeyNoCoord={publicKeyNoCoord}
-            setDelegationsLocalStorage={setDelegationsLocalStorage}
-            availableUTXOs={availableUTXOs}
-          />
+          <Suspense fallback={<LoadingView />}>
+            <Staking
+              btcHeight={paramWithContext?.currentHeight}
+              isWalletConnected={!!btcWallet}
+              onConnect={handleConnectModal}
+              isLoading={isLoadingCurrentParams}
+              btcWallet={btcWallet}
+              btcWalletBalanceSat={btcWalletBalanceSat}
+              btcWalletNetwork={btcWalletNetwork}
+              address={address}
+              publicKeyNoCoord={publicKeyNoCoord}
+              setDelegationsLocalStorage={setDelegationsLocalStorage}
+              availableUTXOs={availableUTXOs}
+            />
+          </Suspense>
           {btcWallet &&
             delegations &&
             paramWithContext?.nextBlockParams.currentVersion &&
@@ -388,6 +434,12 @@ const Home: React.FC<HomeProps> = () => {
         onConnect={handleConnectBTC}
         connectDisabled={!!address}
       />
+      <FilterOrdinalsModal
+        open={filterOrdinalsModalOpen}
+        onClose={handleCloseFilterOrdinalsModal}
+        shouldFilterOrdinals={shouldFilterOrdinals}
+        setShouldFilterOrdinals={handleShouldFilterOrdinals}
+      />
       <ErrorModal
         open={isErrorOpen}
         errorMessage={error.message}
@@ -396,6 +448,7 @@ const Home: React.FC<HomeProps> = () => {
         onRetry={retryErrorAction}
         noCancel={noCancel}
       />
+      <UnbondingDisabledModal />
     </main>
   );
 };

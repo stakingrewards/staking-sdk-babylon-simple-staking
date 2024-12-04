@@ -339,11 +339,8 @@ const DelegationsContent: React.FC<DelegationsProps> = ({
           </div>
         </>
       )}
-
       {modalMode && txID && (
         <UnbondWithdrawModal
-          unbondingTimeBlocks={globalParamsVersion.unbondingTime}
-          unbondingFeeSat={globalParamsVersion.unbondingFeeSat}
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           onProceed={() => {
@@ -353,6 +350,8 @@ const DelegationsContent: React.FC<DelegationsProps> = ({
           }}
           mode={modalMode}
           awaitingWalletResponse={awaitingWalletResponse}
+          delegationsAPI={delegationsAPI}
+          txID={txID}
         />
       )}
     </div>

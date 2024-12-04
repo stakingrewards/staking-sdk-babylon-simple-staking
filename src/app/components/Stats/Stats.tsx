@@ -56,9 +56,9 @@ const buildStakingCapSection = (
   if (isApprochingNextVersion && nextVersion) {
     return buildNextCapText(coinName, btcHeight, nextVersion);
   }
-  const { stakingCapHeight, stakingCapSat, confirmationDepth } = currentVersion;
+  const { stakingCapHeight, stakingCapSat } = currentVersion;
   if (stakingCapHeight) {
-    const numOfBlockLeft = stakingCapHeight + confirmationDepth - btcHeight - 1;
+    const numOfBlockLeft = stakingCapHeight - btcHeight;
     return {
       title: "Staking Window",
       value:
@@ -135,14 +135,14 @@ export const Stats: React.FC = () => {
       {
         title: "Confirmed TVL",
         value: stakingStats?.activeTVLSat
-          ? `${maxDecimals(satoshiToBtc(stakingStats.activeTVLSat), 8)} ${coinName}`
+          ? `${maxDecimals(satoshiToBtc(stakingStats.activeTVLSat), 2)} ${coinName}`
           : 0,
         icon: confirmedTvl,
       },
       {
         title: "Pending Stake",
         value: stakingStats?.unconfirmedTVLSat
-          ? `${maxDecimals(satoshiToBtc(stakingStats.unconfirmedTVLSat - stakingStats.activeTVLSat), 8)} ${coinName}`
+          ? `${maxDecimals(satoshiToBtc(stakingStats.unconfirmedTVLSat - stakingStats.activeTVLSat), 2)} ${coinName}`
           : 0,
         icon: pendingStake,
         tooltip:

@@ -188,9 +188,12 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
                   onChange={(e) => setNoInscription(e.target.checked)}
                   checked={noInscription}
                 />
-                <span className="label-text text-xs leading-snug md:text-sm">
-                  I certify that there are no Bitcoin inscriptions tokens in my
-                  wallet.
+                <span className="label-text text-xs leading-snug md:text-sm md:max-w-[34rem]">
+                  I certify that I wish to stake bitcoin and agree that doing so
+                  may cause some or all of the bitcoin ordinals, NFTs, runes,
+                  and other inscriptions in the connected bitcoin wallet to be
+                  lost. I acknowledge that this interface will not detect all
+                  such inscriptions.
                 </span>
               </label>
             </div>
