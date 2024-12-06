@@ -132,6 +132,7 @@ export const signStakingTx = async (
       unsignedStakingPsbt.toHex(),
     );
   } catch (error: Error | any) {
+    console.log("error", error)
     throw new Error(error?.message || "Staking transaction signing PSBT error");
   }
 

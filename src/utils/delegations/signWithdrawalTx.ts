@@ -119,6 +119,7 @@ export const signWithdrawalTx = async (
     const { psbt } = withdrawPsbtTxResult;
     withdrawalTx = await signPsbtTx(psbt.toHex());
   } catch (error) {
+    console.log("error", error)
     throw new Error("Failed to sign PSBT for the withdrawal transaction");
   }
 

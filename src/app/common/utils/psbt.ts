@@ -2,7 +2,7 @@ import { Psbt, Transaction } from "bitcoinjs-lib";
 
 import { WalletProvider } from "../../../utils/wallet/wallet_provider";
 
-const SIGN_PSBT_NOT_COMPATIBLE_WALLETS = ["OneKey"];
+const SIGN_PSBT_NOT_COMPATIBLE_WALLETS = ["OneKey", "DYNAMIC"];
 
 export type SignPsbtTransaction = (psbtHex: string) => Promise<Transaction>;
 
