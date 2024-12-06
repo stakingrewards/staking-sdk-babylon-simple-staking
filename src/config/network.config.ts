@@ -62,7 +62,6 @@ const config: Record<string, NetworkConfig> = {
 };
 
 export function getNetworkConfig(): NetworkConfig {
-  console.log('network', network, process.env.NEXT_PUBLIC_STAKING_SDK_BABYLON_NETWORK)
   switch (network) {
     case Network.MAINNET:
       return config.mainnet;
