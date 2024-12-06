@@ -32,6 +32,7 @@ export interface InscriptionIdentifier {
 // supported networks
 export enum Network {
   MAINNET = "mainnet",
+  MAINNET_TEST = "mainnet_test",
   TESTNET = "testnet",
   SIGNET = "signet",
 }
