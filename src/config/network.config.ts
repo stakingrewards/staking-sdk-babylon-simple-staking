@@ -1,7 +1,8 @@
 import { Network } from "../utils/wallet/wallet_provider";
 
 export const network =
-  (process.env.NEXT_PUBLIC_STAKING_SDK_BABYLON_NETWORK as Network) || Network.MAINNET;
+  (process.env.NEXT_PUBLIC_STAKING_SDK_BABYLON_NETWORK as Network) ||
+  Network.MAINNET;
 
 interface NetworkConfig {
   coinName: string;
@@ -32,7 +33,6 @@ const mainnetTestConfig: NetworkConfig = {
   pointsApiUrl: `https://points.babylonlabs.io`,
   network: Network.MAINNET_TEST,
 };
-
 
 const signetConfig: NetworkConfig = {
   coinName: "Signet BTC",
@@ -77,7 +77,10 @@ export function getNetworkConfig(): NetworkConfig {
 }
 
 export function validateAddress(network: Network, address: string): void {
-  if ([Network.MAINNET, Network.MAINNET_TEST].includes(network) && !address.startsWith("bc1")) {
+  if (
+    [Network.MAINNET, Network.MAINNET_TEST].includes(network) &&
+    !address.startsWith("bc1")
+  ) {
     throw new Error(
       "Incorrect address prefix for Mainnet. Expected address to start with 'bc1'.",
     );
@@ -89,7 +92,12 @@ export function validateAddress(network: Network, address: string): void {
       "Incorrect address prefix for Testnet / Signet. Expected address to start with 'tb1'.",
     );
   } else if (
-    ![Network.MAINNET, Network.MAINNET_TEST, Network.SIGNET, Network.TESTNET].includes(network)
+    ![
+      Network.MAINNET,
+      Network.MAINNET_TEST,
+      Network.SIGNET,
+      Network.TESTNET,
+    ].includes(network)
   ) {
     throw new Error(
       `Unsupported network: ${network}. Please provide a valid network.`,

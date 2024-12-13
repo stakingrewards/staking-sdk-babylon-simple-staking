@@ -133,7 +133,7 @@ export async function getTipHeight(): Promise<number> {
  */
 export async function getFundingUTXOs(
   address: string,
-  amount?: number
+  amount?: number,
 ): Promise<UTXO[]> {
   // Get all UTXOs for the given address
 

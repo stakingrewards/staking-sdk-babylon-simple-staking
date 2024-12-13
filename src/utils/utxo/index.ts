@@ -1,5 +1,7 @@
-import { postVerifyUtxoOrdinals, UtxoInfo } from "../../app/api/postFilterOrdinals";
-
+import {
+  postVerifyUtxoOrdinals,
+  UtxoInfo,
+} from "../../app/api/postFilterOrdinals";
 import { InscriptionIdentifier, UTXO } from "../wallet/wallet_provider";
 
 export const LOW_VALUE_UTXO_THRESHOLD = 10000;

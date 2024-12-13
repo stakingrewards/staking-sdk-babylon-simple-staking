@@ -1,2 +1,2 @@
 export type emitEventFunc = () => void;
-export const noopFunc = () => {}
+export const noopFunc = () => {};

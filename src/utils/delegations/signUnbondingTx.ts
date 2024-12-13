@@ -8,6 +8,7 @@ import { SignPsbtTransaction } from "../../app/common/utils/psbt";
 import { Delegation as DelegationInterface } from "../../app/types/delegations";
 import { apiDataToStakingScripts } from "../../utils/apiDataToStakingScripts";
 import { getCurrentGlobalParamsVersion } from "../../utils/globalParams";
+
 import { emitEventFunc, noopFunc } from "./events";
 
 // Get the staker signature from the unbonding transaction
@@ -82,14 +83,14 @@ export const signUnbondingTx = async (
     delegation.stakingTx.outputIndex,
   );
 
-  emitWaitForSignatureEvent()
+  emitWaitForSignatureEvent();
 
   // Sign the unbonding transaction
   let unbondingTx: Transaction;
   try {
     unbondingTx = await signPsbtTx(unsignedUnbondingTx.toHex());
   } catch (error) {
-    console.log("error", error)
+    console.log("error", error);
     throw new Error("Failed to sign PSBT for the unbonding transaction");
   }
 
@@ -99,7 +100,7 @@ export const signUnbondingTx = async (
   // Get the unbonding transaction hex
   const unbondingTxHex = unbondingTx.toHex();
 
-  emitBroadcastEvent()
+  emitBroadcastEvent();
 
   // POST unbonding to the API
   await postUnbonding(

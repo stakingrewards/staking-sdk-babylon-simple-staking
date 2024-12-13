@@ -6,12 +6,11 @@ import { GlobalParamsVersion } from "../../app/types/globalParams";
 import { apiDataToStakingScripts } from "../../utils/apiDataToStakingScripts";
 import { isTaproot } from "../../utils/wallet";
 import { UTXO, WalletProvider } from "../../utils/wallet/wallet_provider";
-
 import { getStakingTerm } from "../getStakingTerm";
-
-import { txFeeSafetyCheck } from "./fee";
-import { emitEventFunc, noopFunc } from './events';
 import { getTipHeight } from "../mempool_api";
+
+import { emitEventFunc, noopFunc } from "./events";
+import { txFeeSafetyCheck } from "./fee";
 
 // Returns:
 // - unsignedStakingPsbt: the unsigned staking transaction
@@ -111,19 +110,20 @@ export const signStakingTx = async (
   emitBroadcastEvent: emitEventFunc = noopFunc,
 ): Promise<{ stakingTxHex: string; stakingTerm: number }> => {
   // Create the staking transaction
-  let { unsignedStakingPsbt, stakingTerm, stakingFeeSat } = await createStakingTx(
-    globalParamsVersion,
-    stakingAmountSat,
-    stakingTimeBlocks,
-    finalityProviderPublicKey,
-    btcWalletNetwork,
-    address,
-    publicKeyNoCoord,
-    feeRate,
-    inputUTXOs,
-  );
+  let { unsignedStakingPsbt, stakingTerm, stakingFeeSat } =
+    await createStakingTx(
+      globalParamsVersion,
+      stakingAmountSat,
+      stakingTimeBlocks,
+      finalityProviderPublicKey,
+      btcWalletNetwork,
+      address,
+      publicKeyNoCoord,
+      feeRate,
+      inputUTXOs,
+    );
 
-  emitWaitForSignatureEvent()
+  emitWaitForSignatureEvent();
 
   // Sign the staking transaction
   let stakingTx: Transaction;
@@ -132,14 +132,14 @@ export const signStakingTx = async (
       unsignedStakingPsbt.toHex(),
     );
   } catch (error: Error | any) {
-    console.log("error", error)
+    console.log("error", error);
     throw new Error(error?.message || "Staking transaction signing PSBT error");
   }
 
   // Get the staking transaction hex
   const stakingTxHex = stakingTx.toHex();
 
-  emitBroadcastEvent()
+  emitBroadcastEvent();
 
   txFeeSafetyCheck(stakingTx, feeRate, stakingFeeSat);
 

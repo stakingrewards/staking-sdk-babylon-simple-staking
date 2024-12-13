@@ -2,7 +2,7 @@ import { Psbt, Transaction } from "bitcoinjs-lib";
 
 import { WalletProvider } from "../../../utils/wallet/wallet_provider";
 
-const SIGN_PSBT_NOT_COMPATIBLE_WALLETS = ["OneKey", "DYNAMIC"];
+const SIGN_PSBT_NOT_COMPATIBLE_WALLETS = ["OneKey"];
 
 export type SignPsbtTransaction = (psbtHex: string) => Promise<Transaction>;
 
@@ -13,16 +13,26 @@ export const signPsbtTransaction = (wallet: WalletProvider) => {
   return async (psbtHex: string) => {
     const signedHex = await wallet.signPsbt(psbtHex);
     const providerName = await wallet.getWalletProviderName();
+
+    console.log(`::signPsbtTransaction:: providerName: ${providerName}
+    input psbtHex: ${psbtHex}
+    signedHex: ${signedHex}`);
+
     if (SIGN_PSBT_NOT_COMPATIBLE_WALLETS.includes(providerName)) {
       try {
+        console.log("::signPsbtTransaction:: try to extract tx");
         // Try to parse the signedHex as PSBT to see if it follows the new implementation
         return Psbt.fromHex(signedHex).extractTransaction();
-      } catch {
+      } catch (error) {
+        console.log("::signPsbtTransaction:: err:", error);
+        console.log("::signPsbtTransaction:: fallback to Transaction.fromHex");
+
         // If parsing fails, it's the old version implementation
         return Transaction.fromHex(signedHex);
       }
     }
 
+    console.log("::signPsbtTransaction:: goes directly extract tx");
     // For compatible wallets, directly extract the transaction from the signed PSBT
     return Psbt.fromHex(signedHex).extractTransaction();
   };

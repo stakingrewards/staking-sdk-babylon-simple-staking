@@ -3,7 +3,6 @@ import {
   network,
   validateAddress,
 } from "../../../config/network.config";
-
 import {
   getAddressBalance,
   getFundingUTXOs,

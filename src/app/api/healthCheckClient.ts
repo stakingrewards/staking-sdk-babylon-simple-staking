@@ -1,5 +1,6 @@
-import { getNetworkConfig } from "../../config/network.config";
 import axios from "axios";
+
+import { getNetworkConfig } from "../../config/network.config";
 
 interface HealthCheckResponse {
   data: string;
@@ -8,8 +9,6 @@ interface HealthCheckResponse {
 export const fetchHealthCheck = async (): Promise<HealthCheckResponse> => {
   const { babylonApiUrl } = getNetworkConfig();
 
-  const response = await axios.get(
-    `${babylonApiUrl}/healthcheck`,
-  );
+  const response = await axios.get(`${babylonApiUrl}/healthcheck`);
   return response.data;
 };

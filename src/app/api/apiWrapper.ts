@@ -1,5 +1,6 @@
-import { getNetworkConfig } from "../../config/network.config";
 import axios from "axios";
+
+import { getNetworkConfig } from "../../config/network.config";
 
 export const apiWrapper = async (
   method: "GET" | "POST",

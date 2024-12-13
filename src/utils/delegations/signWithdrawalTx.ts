@@ -10,12 +10,11 @@ import { SignPsbtTransaction } from "../../app/common/utils/psbt";
 import { Delegation as DelegationInterface } from "../../app/types/delegations";
 import { apiDataToStakingScripts } from "../../utils/apiDataToStakingScripts";
 import { getCurrentGlobalParamsVersion } from "../../utils/globalParams";
-
 import { getFeeRateFromMempool } from "../getFeeRateFromMempool";
 import { Fees } from "../wallet/wallet_provider";
 
-import { txFeeSafetyCheck } from "./fee";
 import { emitEventFunc, noopFunc } from "./events";
+import { txFeeSafetyCheck } from "./fee";
 
 // Sign a withdrawal transaction
 // Returns:
@@ -119,7 +118,7 @@ export const signWithdrawalTx = async (
     const { psbt } = withdrawPsbtTxResult;
     withdrawalTx = await signPsbtTx(psbt.toHex());
   } catch (error) {
-    console.log("error", error)
+    console.log("error", error);
     throw new Error("Failed to sign PSBT for the withdrawal transaction");
   }
 

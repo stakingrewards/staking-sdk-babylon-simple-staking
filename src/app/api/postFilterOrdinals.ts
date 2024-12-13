@@ -1,5 +1,6 @@
-import { chunkArray } from "../../utils/chunkArray";
 import { UTXO } from "@/utils/wallet/wallet_provider";
+
+import { chunkArray } from "../../utils/chunkArray";
 
 import { apiWrapper } from "./apiWrapper";
 
