@@ -132,10 +132,12 @@ export const signWithdrawalTx = async (
     withdrawPsbtTxResult.fee,
   );
 
-  emitBroadcastEvent();
+  // TODO: uncomment back
+  // emitBroadcastEvent();
 
   // Broadcast withdrawal transaction
-  await pushTx(withdrawalTxHex);
+  // await pushTx(withdrawalTxHex);
+
 
   return { withdrawalTxHex, delegation };
 };
